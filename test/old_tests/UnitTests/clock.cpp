@@ -75,9 +75,23 @@ TEST_CASE("clock, time_t")
     const time_t now_tt = time(nullptr);
     REQUIRE(clock::to_time_t(clock::from_time_t(now_tt)) == now_tt);
 
+    while (clock::now().time_since_epoch().count() % 10000000 < 9990000) {
+        Sleep(0);
+    }
+    for (int i = 0; i < 10; i++) {
     // Conversions are verified to be consistent. Now, verify that we're correctly converting epochs
-    const auto diff = duration_cast<milliseconds>(abs(clock::now() - clock::from_time_t(time(nullptr)))).count();
-    REQUIRE(diff < 1000);
+    const auto now_tt2 = time(nullptr);
+    const auto now_dt2 = clock::now();
+    const auto now_tt3 = time(nullptr);
+    const auto now_dt3 = clock::now();
+    Catch::cout() << "now_tt2: " << now_tt2 << std::endl;
+    Catch::cout() << "now_dt2: " << now_dt2.time_since_epoch().count() << std::endl;
+    Catch::cout() << "now_tt3: " << now_tt3 << std::endl;
+    Catch::cout() << "now_dt3: " << now_dt3.time_since_epoch().count() << std::endl;
+    Catch::cout() << "clock::from_time_t(now_tt2): " <<  clock::from_time_t(time(nullptr)).time_since_epoch().count() << std::endl;
+    const auto diff = duration_cast<milliseconds>(abs(now_dt2 - clock::from_time_t(now_tt2))).count();
+    CHECK(diff < 1000);
+    }
 }
 
 TEST_CASE("clock, FILETIME")
